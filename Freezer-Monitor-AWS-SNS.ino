@@ -59,6 +59,7 @@
 #include <WiFiUdp.h>
 #include "config.h"
 #include "monitor.h"
+#include "notification.h"
 #include "door.h"
 #include "power.h"
 #include "sns.h"
@@ -86,25 +87,33 @@ WiFiUDP ntpUDP;
 // no offset
 NTPClient timeClient(ntpUDP,"pool.ntp.org", 0, 12 * 60 * 60 * 1000); //update every 12 hours
 
+Sns *sns;
+LedBuzzer *ledBuzzer;
+
 void setup() {
   Serial.begin(115200);
   delay(500); // give a little time for Serial to settle down. 
 
-  pinMode(RED_PIN, OUTPUT);
-  pinMode(GREEN_PIN, OUTPUT);
+ 
   pinMode(DOOR_PIN, INPUT);
   pinMode(POWER_SENSE_PIN, INPUT);
+  digitalWrite(RED_PIN, LOW);    // Low pin turns lights on.
+  digitalWrite(GREEN_PIN, LOW);  // Low pin turns lights on
 
   door = new Door(DOOR_PIN);
   power = new Power(POWER_SENSE_PIN);
 
   trigger.pushTrigger(door);
   trigger.pushTrigger(power);
-
   monitor = new Monitor(&trigger, DOOR_TIMEOUT_MS);
+  sns = new Sns(*monitor, SNS_TOPIC_ARN);
+  ledBuzzer = new ledBuzzer(*monitor, RED_PIN, GREEN_PIN);
 
   monitor->begin();
+  sns->begin(); 
+  ledBuzzer->begin(); 
 
+  // attempt to connect to Wifi network:
   WiFi.mode(WIFI_STA);
   WiFi.begin(WLAN_SSID,WLAN_PASS);
   
@@ -113,71 +122,12 @@ void setup() {
     Serial.print(".");
   }
   
-  
-
-  digitalWrite(RED_PIN, LOW);    // Low pin turns lights on.
-  digitalWrite(GREEN_PIN, LOW);  // Low pin turns lights on
-  
-  // attempt to connect to Wifi network:
-
   Serial.println("OK");
 }
 
 void loop() { 
-  static MONITOR_STATE lastMonitorState = MONITOR_GREEN;
-  MONITOR_STATE monitorState = monitor->run();
   timeClient.update();
-
-  if (monitorState == MONITOR_GREEN)
-  {
-    analogWrite(BUZZER_PIN, 0);
-    digitalWrite(RED_PIN, HIGH);  // OFF
-    digitalWrite(GREEN_PIN, LOW); // ON
-  }
-  else if (monitorState == MONITOR_YELLOW) // red LED
-  {
-    digitalWrite(RED_PIN, LOW);    // ON
-    digitalWrite(GREEN_PIN, HIGH); // OFF
-  }
-  else // MONITOR_RED -- Flashing red LED
-  {
-    unsigned int ms = millis();
-    if ((ms % 1000) < 500)
-    {
-      digitalWrite(RED_PIN, LOW); // ON
-    }
-    else
-    {
-      digitalWrite(RED_PIN, HIGH); // OFF
-    }
-    digitalWrite(GREEN_PIN, HIGH); // OFF
-  }
-  
-  // return if the value hasn't changed
-  if(monitorState == lastMonitorState)
-    return;
-
-  // state changed!
-  // timer.start(); // restart the timer if our state changed.  We don't want to disconnect if we have been recently active. 
-  if (MONITOR_GREEN == monitorState)
-  {
-    // We're Green Again
-    if (lastMonitorState == MONITOR_RED)
-    {
-      //Silence the Alarm
-      snsPublish(timeClient, SNS_TOPIC_ARN, "Freezer%20is%20CLOSED");
-    }
-  }
-  else if (MONITOR_RED == monitorState)
-  { 
-    // Alarm!
-    analogWrite(BUZZER_PIN, 50); 
-    snsPublish(timeClient, SNS_TOPIC_ARN, "Freezer%20is%20OPEN");
-  }
-  else // (MONITOR_YELLOW == monitorState)
-  {
-    // Monitor Open
-  }
-  
-  lastMonitorState = monitorState;
+  monitor->run();
+  ledBuzzer->run(); 
+  sns->run(); 
 }

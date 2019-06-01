@@ -10,6 +10,51 @@
 #include "sns.h"
 #include "config.h"
 
+Sns::Sns(Monitor &monitor, NTPClient &timeClient, const char* topic)
+    : Notification(monitor)
+    , _timeClient(timeClient)
+    , _topic(toic)
+    , _isAlerted(false)
+{
+
+}
+
+bool Sns::begin()
+{
+
+}
+
+void Sns::run()
+{
+    Notification::run(); 
+}
+
+void Sns::onRed(bool isNew)
+{
+  if (isNew){
+    snsPublish(timeClient, topic, "Freezer%20is%20OPEN");
+    _isAlerted = true; 
+  }
+}
+
+void Sns::onYellow(bool isNew)
+{
+    
+
+}
+
+void Sns::onGreen(bool isNew)
+{
+  if(_isAlerted)
+  {
+    //Silence the Alarm
+    snsPublish(timeClient, topic, "Freezer%20is%20CLOSED");
+    _isAlerted = false; 
+  }
+}
+
+
+
 // forward declarations
 void btoa2Padded(uint8_t value, char* buffer, int base);
 void dateTime8601UrlEncoded(int year, byte month, byte day, byte hour, byte minute, byte seconds, char* buffer);
