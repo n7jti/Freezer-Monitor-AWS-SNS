@@ -2,10 +2,11 @@
 #include <arduino.h>
 #include "ledbuzzer.h"
 
-LedBuzzer::LedBuzzer(Monitor &monitor, int redpin, int greenpin) 
+LedBuzzer::LedBuzzer(Monitor &monitor, int redpin, int greenpin, int buzzerpin) 
     : Notification(monitor)
     , _redpin(redpin)
     , _greenpin(greenpin)
+    , _buzzerpin(buzzerpin)
 {
 
 }
@@ -19,7 +20,7 @@ bool LedBuzzer::begin()
 
 void LedBuzzer::run()
 {
-    Notifiction::run()
+    Notification::run();
 }
 
 void LedBuzzer::onRed(bool isNew)
@@ -27,29 +28,29 @@ void LedBuzzer::onRed(bool isNew)
     unsigned int ms = millis();
     if ((ms % 1000) < 500)
     {
-      digitalWrite(RED_PIN, LOW); // ON
+      digitalWrite(_redpin, LOW); // ON
     }
     else
     {
-      digitalWrite(RED_PIN, HIGH); // OFF
+      digitalWrite(_redpin, HIGH); // OFF
     }
-    digitalWrite(GREEN_PIN, HIGH); // OFF
+    digitalWrite(_redpin, HIGH); // OFF
 
     // Alarm!
     if (isNew) {
-        analogWrite(BUZZER_PIN, 50);
+        analogWrite(_buzzerpin, 50);
     }
 }
 
 void LedBuzzer::onYellow(bool isNew)
 {
-    digitalWrite(RED_PIN, LOW);    // ON
-    digitalWrite(GREEN_PIN, HIGH); // OFF
+    digitalWrite(_redpin, LOW);    // ON
+    digitalWrite(_redpin, HIGH); // OFF
 }
 
 void LedBuzzer::onGreen(bool isNew)
 {
-    analogWrite(BUZZER_PIN, 0);
-    digitalWrite(RED_PIN, HIGH);  // OFF
-    digitalWrite(GREEN_PIN, LOW); // ON
+    analogWrite(_buzzerpin, 0);
+    digitalWrite(_redpin, HIGH);  // OFF
+    digitalWrite(_greenpin, LOW); // ON
 }

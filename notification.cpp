@@ -27,8 +27,6 @@ void Notification::run()
     case MONITOR_RED:
         onRed(_lastState != MONITOR_RED);
         break;
-    default:
-
     }
 
 

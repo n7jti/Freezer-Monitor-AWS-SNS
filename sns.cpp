@@ -13,7 +13,7 @@
 Sns::Sns(Monitor &monitor, NTPClient &timeClient, const char* topic)
     : Notification(monitor)
     , _timeClient(timeClient)
-    , _topic(toic)
+    , _topic(topic)
     , _isAlerted(false)
 {
 
@@ -32,7 +32,7 @@ void Sns::run()
 void Sns::onRed(bool isNew)
 {
   if (isNew){
-    snsPublish(timeClient, topic, "Freezer%20is%20OPEN");
+    snsPublish(_timeClient, _topic, "Freezer%20is%20OPEN");
     _isAlerted = true; 
   }
 }
@@ -48,7 +48,7 @@ void Sns::onGreen(bool isNew)
   if(_isAlerted)
   {
     //Silence the Alarm
-    snsPublish(timeClient, topic, "Freezer%20is%20CLOSED");
+    snsPublish(_timeClient, _topic, "Freezer%20is%20CLOSED");
     _isAlerted = false; 
   }
 }

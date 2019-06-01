@@ -7,7 +7,7 @@
 class LedBuzzer : public Notification
 {
 public:
-    LedBuzzer(Monitor &monitor, int redpin, int greenpin);
+    LedBuzzer(Monitor &monitor, int redpin, int greenpin, int buzzerpin);
     virtual bool begin();
     void run();
 protected:
@@ -17,6 +17,7 @@ protected:
 private:
     int _redpin; 
     int _greenpin;
+    int _buzzerpin; 
 
     
 

@@ -59,9 +59,10 @@
 #include <WiFiUdp.h>
 #include "config.h"
 #include "monitor.h"
-#include "notification.h"
 #include "door.h"
 #include "power.h"
+#include "notification.h"
+#include "ledbuzzer.h"
 #include "sns.h"
 
 // Freezer Monitor Configuration
@@ -106,8 +107,8 @@ void setup() {
   trigger.pushTrigger(door);
   trigger.pushTrigger(power);
   monitor = new Monitor(&trigger, DOOR_TIMEOUT_MS);
-  sns = new Sns(*monitor, SNS_TOPIC_ARN);
-  ledBuzzer = new ledBuzzer(*monitor, RED_PIN, GREEN_PIN);
+  sns = new Sns(*monitor, timeClient, SNS_TOPIC_ARN);
+  ledBuzzer = new LedBuzzer(*monitor, RED_PIN, GREEN_PIN, BUZZER_PIN);
 
   monitor->begin();
   sns->begin(); 
