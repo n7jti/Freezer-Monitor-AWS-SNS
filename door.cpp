@@ -1,81 +1,51 @@
 // door
-
 #include <arduino.h>
 #include "door.h"
 
-#define MS_PER_MIN 60000
-#define DOOR_TIMEOUT_MS (MS_PER_MIN)
-
-Door::Door()
-  : _pin(0)
-  , _state(DOOR_GREEN)
+Door::Door(int pin)
+  : Trigger()
+  , _pin(pin)
 {
   
 }
 
-void Door::begin(int pin)
+bool Door::begin()
 {
-  // the door is open when the DOOR_PIN is HIGH. 
-  _pin = pin;
   pinMode(_pin, INPUT_PULLUP);
+  return true; 
 }
 
-DOOR_STATE Door::run()
+bool Door::isTriggered()
 {
-  unsigned int now = millis();
-  unsigned int elapsed = now - _stateStartMs;
-  DOOR_STATE startState = _state;
-  
+  bool ret;
   // The magnetic switch connects the pin to ground.
   // The magnetic switch is normally open, but is pulled closed by the magnet.
   // The pin is pulled-up and reads high when the switch is open 
   // We want our state variables to be HIGH when the door is open and LOW when closed. 
   // The pin reads high when the door is open. 
-  int doorIn = digitalRead(_pin);
+  return digitalRead(_pin) == HIGH;
+}
 
-  switch(_state)
-  {
-    case DOOR_RED:
-      if (doorIn == LOW) // closed
-      {
-        _stateStartMs = now;
-        _state = DOOR_GREEN;
-        Serial.println("Door Closed");
-      }
-    break;
-    case DOOR_YELLOW:
-      if (doorIn == LOW) // closed
-      {
-        _stateStartMs = now;
-        _state = DOOR_GREEN;
-        Serial.println("Door Closed");
-      }
-      else if (elapsed > DOOR_TIMEOUT_MS) // yellow for the timeout
-      {
-         _state = DOOR_RED;
-         Serial.println("Door Alarm!");
-      }
-    break;
-    case DOOR_GREEN:
-      if (doorIn == HIGH) // opened
-      {
-        _stateStartMs = now;
-        _state = DOOR_YELLOW;
-        Serial.println("Door Opened");
-      }
-    break;
+int Door::getStatus(char* buffer, int length)
+{
+  int len; 
+  constexpr char msgOpen[] = "Freezer%20is%20OPEN%21%0A";
+  constexpr char msgClosed[] = "Freezer%20is%20CLOSED.%0A";
+  if (isTriggered()) {
+    strncpy(buffer, msgOpen, length);
+    len = strlen(msgOpen);
+    if (length < len){
+      len = length; 
+    }
   }
-  
-  return _state;
-}
-
-DOOR_STATE Door::getState()
-{
-  return _state;
-}
-
-unsigned int Door::getStateElapsedMs()
-{
-  return millis() - _stateStartMs;
+  else {
+    // copy Freezer is Closed; 
+    strncpy(buffer, msgClosed, length);
+    len = strlen(msgClosed);
+    if (length < len){
+      len = length; 
+    }
+  }
+  return len; 
 }
 
