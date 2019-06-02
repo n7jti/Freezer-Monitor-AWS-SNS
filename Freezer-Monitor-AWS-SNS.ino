@@ -95,9 +95,6 @@ void setup() {
   Serial.begin(115200);
   delay(500); // give a little time for Serial to settle down. 
 
- 
-  pinMode(DOOR_PIN, INPUT);
-  pinMode(POWER_SENSE_PIN, INPUT);
   digitalWrite(RED_PIN, LOW);    // Low pin turns lights on.
   digitalWrite(GREEN_PIN, LOW);  // Low pin turns lights on
 
@@ -123,7 +120,8 @@ void setup() {
     Serial.print(".");
   }
   
-  Serial.println("OK");
+  Serial.println("WIFI Connected!");
+
 }
 
 void loop() { 
@@ -131,4 +129,5 @@ void loop() {
   monitor->run();
   ledBuzzer->run(); 
   sns->run(); 
+  delay(250); 
 }

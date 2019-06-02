@@ -1,5 +1,6 @@
 // trigger.cpp
 
+#include <Arduino.h>
 #include "trigger.h"
 
  AggregateOrTrigger::AggregateOrTrigger()
@@ -10,8 +11,9 @@
 
 bool AggregateOrTrigger::isTriggered()
 {
-    bool ret = true; 
+    bool ret = false; 
     for(unsigned int i = 0; i < _count; ++i){
+       bool flag; 
        ret = ret || _triggers[i]->isTriggered(); 
     }
     return ret; 
@@ -36,4 +38,18 @@ bool AggregateOrTrigger::pushTrigger(Trigger *trigger)
     _triggers[_count] = trigger; 
     _count += 1; 
     return true; 
+}
+
+int AggregateOrTrigger::getStatus(char* buffer, int length)
+{
+    int len;
+    int total = 0;  
+    for(unsigned int i = 0; i < _count; ++i){
+       len =  _triggers[i]->getStatus(buffer, length);
+       buffer += len; 
+       length -= len; 
+       total += len; 
+    }
+
+    return total; 
 }

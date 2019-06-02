@@ -7,6 +7,7 @@ class Trigger{
 public:
     virtual bool isTriggered() = 0;
     virtual bool begin() = 0;
+    virtual int getStatus(char* buffer, int length) = 0;
 };
 
 // class that aggregates up to MAX_TRIGGERS triggers
@@ -24,8 +25,9 @@ public:
     AggregateOrTrigger();
 
     // Trigger methods
-    virtual bool isTriggered();
+    virtual bool isTriggered(); 
     virtual bool begin();
+    virtual int getStatus(char* buffer, int length);
 
     // Add triggers to aggregate.  We are an embedded platform and we
     // are never going to tear-down so no need for the rest of the

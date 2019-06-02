@@ -1,5 +1,5 @@
 // ledbuzzer.cpp
-#include <arduino.h>
+#include <Arduino.h>
 #include "ledbuzzer.h"
 
 LedBuzzer::LedBuzzer(Monitor &monitor, int redpin, int greenpin, int buzzerpin) 
@@ -34,18 +34,18 @@ void LedBuzzer::onRed(bool isNew)
     {
       digitalWrite(_redpin, HIGH); // OFF
     }
-    digitalWrite(_redpin, HIGH); // OFF
+    digitalWrite(_greenpin, HIGH); // OFF
 
     // Alarm!
     if (isNew) {
         analogWrite(_buzzerpin, 50);
-    }
+    } 
 }
 
 void LedBuzzer::onYellow(bool isNew)
 {
-    digitalWrite(_redpin, LOW);    // ON
-    digitalWrite(_redpin, HIGH); // OFF
+    digitalWrite(_redpin, LOW);  // ON
+    digitalWrite(_greenpin, HIGH); // OFF
 }
 
 void LedBuzzer::onGreen(bool isNew)

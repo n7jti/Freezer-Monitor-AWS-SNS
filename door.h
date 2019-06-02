@@ -9,6 +9,7 @@ public:
   Door(int pin);
   virtual bool begin();
   virtual bool isTriggered();
+  virtual int getStatus(char* buffer, int length);
 private:
    int _pin; 
 };

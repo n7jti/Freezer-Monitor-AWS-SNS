@@ -63,3 +63,8 @@ MONITOR_STATE Monitor::run()
 
     return _state;
 }
+
+int Monitor::getStatus(char* buffer, int length)
+{
+    return _trigger->getStatus(buffer, length);
+}

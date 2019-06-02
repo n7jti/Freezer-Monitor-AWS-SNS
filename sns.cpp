@@ -31,24 +31,26 @@ void Sns::run()
 
 void Sns::onRed(bool isNew)
 {
+  char msg[64];
   if (isNew){
-    snsPublish(_timeClient, _topic, "Freezer%20is%20OPEN");
+    _monitor.getStatus(msg, sizeof(msg));
+    snsPublish(_timeClient, _topic, msg);
     _isAlerted = true; 
   }
 }
 
 void Sns::onYellow(bool isNew)
 {
-    
 
 }
 
 void Sns::onGreen(bool isNew)
 {
+  char msg[64];
   if(_isAlerted)
   {
-    //Silence the Alarm
-    snsPublish(_timeClient, _topic, "Freezer%20is%20CLOSED");
+    _monitor.getStatus(msg, sizeof(msg));
+    snsPublish(_timeClient, _topic, msg);
     _isAlerted = false; 
   }
 }

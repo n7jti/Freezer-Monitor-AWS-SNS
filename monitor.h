@@ -18,6 +18,7 @@ public:
     MONITOR_STATE run();
     MONITOR_STATE getState();
     unsigned int getStateElapsedMs();
+    int getStatus(char* buffer, int length);
 private:
     MONITOR_STATE _state;
     unsigned int _stateStartMs;
